@@ -147,6 +147,7 @@ with open('./vision/video1.csv') as file:
             break
 
 print("---Final Statistics---")
+print("Key frame count: {0}".format(test_frames))
 print("Avg accuracy: {0}".format(test_sum / test_frames))
 print("Tgt not detected: {0} times".format(target_missed_count))
 
