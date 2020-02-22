@@ -40,7 +40,7 @@ if __name__ == '__main__':
         sys.exit()
 
     # Define an initial bounding box
-    bbox = (287, 23, 86, 320)
+    # bbox = (287, 23, 86, 320)
 
     # Uncomment the line below to select a different bounding box
     bbox = cv2.selectROI(frame, False)
@@ -61,7 +61,7 @@ if __name__ == '__main__':
         ok, bbox = tracker.update(frame)
 
         # Calculate Frames per second (FPS)
-        fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer);
+        fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer)
 
         # Draw bounding box
         if ok:
@@ -74,17 +74,17 @@ if __name__ == '__main__':
             cv2.putText(frame, "Tracking failure detected", (100, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 255), 2)
 
         # Display tracker type on frame
-        cv2.putText(frame, "MOSSE" + " Tracker", (100, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50, 170, 50), 2);
+        cv2.putText(frame, "MOSSE" + " Tracker", (100, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50, 170, 50), 2)
 
         # Display FPS on frame
-        cv2.putText(frame, "FPS : " + str(int(fps)), (100, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50, 170, 50), 2);
+        cv2.putText(frame, "FPS : " + str(int(fps)), (100, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50, 170, 50), 2)
 
         # Display result
         cv2.imshow("Tracking", frame)
 
         # Exit if ESC pressed
-        if (cv2.waitKey(1) & 0xFF == ord('q')):
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-cap.release()
-cv2.destroyAllWindows()
+    cap.release()
+    cv2.destroyAllWindows()

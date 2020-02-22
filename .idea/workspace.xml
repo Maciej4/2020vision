@@ -2,15 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f06232e6-6d77-4ccc-926e-aa8568cf0987" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/labeler.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testvideo/1.mp4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testvideo/2.mp4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vision/test.csv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vision/video1.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/share2.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/share2.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trackingTest.py" beforeDir="false" afterPath="$PROJECT_DIR$/trackingTest.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/vision.py" beforeDir="false" afterPath="$PROJECT_DIR$/vision.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

@@ -23,48 +23,13 @@ kernal = np.ones((3, 3), np.uint8)
 
 cv2.namedWindow('frame')
 
-
-# def edit_l0(val):
-#     lower_yellow[0] = val
-#
-#
-# def edit_l1(val):
-#     lower_yellow[1] = val
-#
-#
-# def edit_l2(val):
-#     lower_yellow[2] = val
-#
-#
-# def edit_u0(val):
-#     upper_yellow[0] = val
-#
-#
-# def edit_u1(val):
-#     upper_yellow[1] = val
-#
-#
-# def edit_u2(val):
-#     upper_yellow[2] = val
-#
-#
-# cv2.createTrackbar('lower_hue', 'frame', lower_yellow[0], 255, edit_l0)
-# cv2.createTrackbar('upper_hue', 'frame', upper_yellow[0], 255, edit_u0)
-# cv2.createTrackbar('lower_sat', 'frame', lower_yellow[1], 255, edit_l1)
-# cv2.createTrackbar('upper_sat', 'frame', upper_yellow[1], 255, edit_u1)
-# cv2.createTrackbar('lower_val', 'frame', lower_yellow[2], 255, edit_l2)
-# cv2.createTrackbar('upper_val', 'frame', upper_yellow[2], 255, edit_u2)
-
 # Exit if video not opened.
 if not cap.isOpened():
     print("Could not open camera. Are you sure that the camera is plugged in?")
     sys.exit()
 
-# Read first frame.
-# ret, frame = cap.read()
-# if not ret:
-#     print("Cannot read camera frame")
-#     sys.exit()
+def zeros(l_bbox):
+    return l_bbox[0] == 0 and l_bbox[1] == 0 and l_bbox[2] == 0 and l_bbox[3] == 0
 
 
 def convert_bbox(l_bbox):
@@ -119,17 +84,21 @@ print("Starting program!")
 
 test_frames = 0
 test_sum = 0
+past_active = False
+target_missed_count = 0
 
 with open('./vision/video1.csv') as file:
     reader = csv.reader(file)
     rows = list(reader)
-    # print(rows[0])
     csv_length = len(rows)
 
     if csv_length == 0:
         sys.exit()
 
     while cap.isOpened():
+        if past_active:
+            time.sleep(1)
+
         ret, frame = cap.read()
         if not ret:
             break
@@ -144,47 +113,42 @@ with open('./vision/video1.csv') as file:
 
         r_bbox = (r_bbox[0], r_bbox[1], r_bbox[2], r_bbox[3])
 
-        # bbox = next(reader)
-
-        # timer = cv2.getTickCount()
-
         mask, d_bbox = detect(frame)
-
-        # if count % 30 == 0:
-        #     out.write(frame)
-
-        # print(d_bbox)
-        # print(r_bbox)
 
         count += 1
 
-        # fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer)
-
-        # cv2.putText(frame, "FPS : " + str(int(fps)), (100, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50, 170, 50), 2)
-
-        if r_bbox[0] == 0 and r_bbox[1] == 0 and r_bbox[2] == 0 and r_bbox[3] == 0:
+        if zeros(r_bbox):
             cv2.imshow('mask', mask)
             cv2.imshow('frame', frame)
             iou = -1.0
             # print(iou)
+            past_active = False
         else:
-            cv2.rectangle(frame, (r_bbox[0], r_bbox[1]), (r_bbox[0] + r_bbox[2], r_bbox[1] + r_bbox[3]), (255, 0, 0), 2)
-            cv2.imshow('mask', mask)
-            cv2.imshow('frame', frame)
+            # Calculate stats
             iou = intersection_over_union(convert_bbox(r_bbox), convert_bbox(d_bbox))
+            # print(iou)
             test_sum += iou
             test_frames += 1
-            # print(iou)
-            # time.sleep(1)
+            if zeros(d_bbox):
+                target_missed_count += 1
 
-        # time.sleep(0.5)
+            # Draw data onto frame
+            cv2.rectangle(frame, (r_bbox[0], r_bbox[1]), (r_bbox[0] + r_bbox[2], r_bbox[1] + r_bbox[3]), (255, 0, 0), 2)
+            cv2.putText(frame, "IOU: %.4f" % iou, (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255, 0, 0), 2)
+
+            # Show images
+            cv2.imshow('mask', mask)
+            cv2.imshow('frame', frame)
+
+            # Make the program wait on start of next run
+            past_active = True
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-print(test_sum)
-print(test_frames)
+print("---Final Statistics---")
 print("Avg accuracy: {0}".format(test_sum / test_frames))
+print("Tgt not detected: {0} times".format(target_missed_count))
 
 # out.release()
 cap.release()
