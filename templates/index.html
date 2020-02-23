@@ -1,0 +1,23 @@
+<html>
+  <head>
+    <title>Video Feed</title>
+    <script>
+      setInterval(function() {
+          var myImageElement = document.getElementById('myImage');
+          myImageElement.src = "{{ url_for('video_feed') }}?rand=" + Math.random();
+      }, 3000);
+    </script>
+    <style type="text/css">
+        img {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 100%;
+            height: 97vh;
+        }
+    </style>
+  </head>
+  <body style="background-color:black;">
+    <img class="img" src="{{ url_for('video_feed') }}">
+  </body>
+</html>

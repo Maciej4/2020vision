@@ -1,0 +1,15 @@
+<html>
+  <head>
+    <title>Diagnostic</title>
+    <script>
+      setInterval(function() {
+          var myImageElement = document.getElementById('myImage');
+          myImageElement.src = "{{ url_for('diagnostic_feed') }}?rand=" + Math.random();
+      }, 3000);
+    </script>
+  </head>
+  <body>
+    <h1>Diagnostic</h1>
+    <img id="myImage" src="{{ url_for('diagnostic_feed') }}">
+  </body>
+</html>
