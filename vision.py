@@ -28,6 +28,7 @@ if not cap.isOpened():
     print("Could not open camera. Are you sure that the camera is plugged in?")
     sys.exit()
 
+
 def zeros(l_bbox):
     return l_bbox[0] == 0 and l_bbox[1] == 0 and l_bbox[2] == 0 and l_bbox[3] == 0
 
@@ -97,7 +98,7 @@ with open('./vision/video1.csv') as file:
 
     while cap.isOpened():
         if past_active:
-            time.sleep(1)
+            time.sleep(0.2)
 
         ret, frame = cap.read()
         if not ret:
