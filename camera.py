@@ -15,6 +15,34 @@ except ImportError:
         print("using _thread")
 
 
+def gstreamer_pipeline(
+    capture_width=640,
+    capture_height=480,
+    display_width=640,
+    display_height=480,
+    framerate=120,
+    flip_method=0,
+):
+    return (
+        "nvarguscamerasrc ! "
+        "video/x-raw(memory:NVMM), "
+        "width=(int)%d, height=(int)%d, "
+        "format=(string)NV12, framerate=(fraction)%d/1 ! "
+        "nvvidconv flip-method=%d ! "
+        "video/x-raw, width=(int)%d, height=(int)%d, format=(string)BGRx ! "
+        "videoconvert ! "
+        "video/x-raw, format=(string)BGR ! appsink"
+        % (
+            capture_width,
+            capture_height,
+            framerate,
+            flip_method,
+            display_width,
+            display_height,
+        )
+    )
+
+
 class CameraEvent(object):
     """An Event-like class that signals all active clients when a new frame is
     available.
@@ -92,11 +120,18 @@ class Camera(object):
 
     @staticmethod
     def frames():
-        camera = cv2.VideoCapture(0)
-        camera.set(3, 640)
-        camera.set(4, 480)
+        camera = cv2.VideoCapture(gstreamer_pipeline(flip_method=0), cv2.CAP_GSTREAMER)
+        # camera = cv2.VideoCapture(0)
+        # camera.set(3, 640)
+        # camera.set(4, 480)
         if not camera.isOpened():
             raise RuntimeError('Could not start camera.')
+
+        ret, img = camera.read()
+        if ret:
+            print(img.shape)
+        else:
+            print("Could not read from camera.")
 
         while context.keep_running:
             # read current frame
@@ -104,6 +139,9 @@ class Camera(object):
 
             # encode as a jpeg image and return both
             yield img
+
+        print("\nReleasing Camera")
+        camera.release()
 
     @classmethod
     def _thread(cls):

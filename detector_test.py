@@ -3,7 +3,7 @@ import numpy as np
 import time
 import math
 import sys
-from networktables import NetworkTables
+from nt_interface import NetworkTables
 import glob
 import matplotlib.pyplot as plt
 from detector import Detector

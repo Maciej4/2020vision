@@ -7,6 +7,7 @@ import context
 
 from camera import Camera
 from detector import Detector
+from nt_interface import NTInterface
 import threading
 import time
 import numpy as np
@@ -15,6 +16,7 @@ app = Flask(__name__)
 # Camera = Camera.Camera
 detector = Detector()
 camera = Camera()
+nt_interface = NTInterface()
 
 last_frame = None
 ret = None
@@ -47,6 +49,8 @@ def detector_thread():
         frame = camera.get_frame()
         # start = time.time()
         diagnostic_img, t_bbox = detector.detect_corners(frame)
+        nt_interface.put_num("tx", t_bbox[0] + t_bbox[2]/2)
+        nt_interface.put_num("ty", t_bbox[1] + t_bbox[3]/2)
         cv2.putText(diagnostic_img, "%.2f ms" % (1000*(time.time()-start)), (10, 30),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, 255, 2)
 
