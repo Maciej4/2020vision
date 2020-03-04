@@ -2,6 +2,7 @@ import time
 import threading
 import cv2
 import context
+import datetime
 
 try:
     from greenlet import getcurrent as get_ident
@@ -41,6 +42,17 @@ def gstreamer_pipeline(
             display_height,
         )
     )
+
+
+def generate_out():
+    file_name = str(datetime.datetime.now().strftime("/home/pi/Documents/captures/%H:%M:%S-%d-%m-%y.mp4"))
+    fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+    # fourcc = cv2.VideoWriter_fourcc(*'FFV1')
+    return cv2.VideoWriter(file_name, fourcc, 30.0, (640, 480))
+
+
+video_len = 30
+out = generate_out()
 
 
 class CameraEvent(object):
@@ -120,6 +132,7 @@ class Camera(object):
 
     @staticmethod
     def frames():
+        global out, video_len
         camera = cv2.VideoCapture(gstreamer_pipeline(flip_method=0), cv2.CAP_GSTREAMER)
         # camera = cv2.VideoCapture(0)
         # camera.set(3, 640)
@@ -129,18 +142,28 @@ class Camera(object):
 
         ret, img = camera.read()
         if ret:
-            print(img.shape)
+            print("image size: {0}".format(img.shape))
         else:
             print("Could not read from camera.")
 
+        out_start = time.time()
         while context.keep_running:
             # read current frame
             _, img = camera.read()
+
+            # start = time.time()
+            out.write(img)
+            # print("dt: {0}".format((1000*(time.time()-start))))
+
+            if out_start + video_len < time.time():
+                out_start = time.time()
+                out = generate_out()
 
             # encode as a jpeg image and return both
             yield img
 
         print("\nReleasing Camera")
+        out.release()
         camera.release()
 
     @classmethod

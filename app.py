@@ -3,14 +3,25 @@ from importlib import import_module
 import os
 import cv2
 from flask import Flask, render_template, Response
+import socket
 import context
-
 from camera import Camera
 from detector import Detector
 from nt_interface import NTInterface
 import threading
 import time
 import numpy as np
+import fcntl
+import struct
+
+
+def get_ip_address():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    return s.getsockname()[0]
+
+
+print("ip address: " + get_ip_address())
 
 app = Flask(__name__)
 # Camera = Camera.Camera
@@ -42,17 +53,25 @@ def draw_color_values(frame):
 
 
 def detector_thread():
-    global diagnostic_img, t_bbox
+    global diagnostic_img, t_bbox, video_len, out
+    vid_start_time = time.time()
     while context.keep_running:
         # get the job from the front of the queue
-        start = time.time()
+        laps = [1000*time.time()]
         frame = camera.get_frame()
-        # start = time.time()
+        laps.append(1000*time.time())
+
+        # out.write(frame)
+        # laps.append(1000*time.time())
+
         diagnostic_img, t_bbox = detector.detect_corners(frame)
+        laps.append(1000*time.time())
+
         nt_interface.put_num("tx", t_bbox[0] + t_bbox[2]/2)
         nt_interface.put_num("ty", t_bbox[1] + t_bbox[3]/2)
-        cv2.putText(diagnostic_img, "%.2f ms" % (1000*(time.time()-start)), (10, 30),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, 255, 2)
+        cv2.putText(diagnostic_img, "cap:{0:.2f}ms, is:{1:.2f}ms, tot: {2:.2f}"
+                    .format((laps[1]-laps[0]), (laps[2]-laps[1]), (laps[2]-laps[0])),
+                    (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, 255, 2)
 
 
 thread = threading.Thread(target=detector_thread)
