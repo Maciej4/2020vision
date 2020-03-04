@@ -11,8 +11,13 @@ from nt_interface import NTInterface
 import threading
 import time
 import numpy as np
-import fcntl
-import struct
+
+last_frame = None
+ret = None
+t_bbox = None
+diagnostic_img = None
+proper_green = (26, 178, 79)
+stream_port = 5810
 
 
 def get_ip_address():
@@ -21,7 +26,10 @@ def get_ip_address():
     return s.getsockname()[0]
 
 
-print("ip address: " + get_ip_address())
+ip_address = get_ip_address()
+stream_ip = str(ip_address) + ":" + str(stream_port)
+
+print("ip address: " + stream_ip)
 
 app = Flask(__name__)
 # Camera = Camera.Camera
@@ -29,11 +37,7 @@ detector = Detector()
 camera = Camera()
 nt_interface = NTInterface()
 
-last_frame = None
-ret = None
-t_bbox = None
-diagnostic_img = None
-proper_green = (26, 178, 79)
+nt_interface.put_str("stream_ip", stream_ip)
 
 
 def draw_target(img):
@@ -69,7 +73,7 @@ def detector_thread():
 
         nt_interface.put_num("tx", t_bbox[0] + t_bbox[2]/2)
         nt_interface.put_num("ty", t_bbox[1] + t_bbox[3]/2)
-        cv2.putText(diagnostic_img, "cap:{0:.2f}ms, is:{1:.2f}ms, tot: {2:.2f}"
+        cv2.putText(diagnostic_img, "cap:{0:3.2f}ms, is:{1:3.2f}ms, tot: {2:3.2f}"
                     .format((laps[1]-laps[0]), (laps[2]-laps[1]), (laps[2]-laps[0])),
                     (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, 255, 2)
 
@@ -171,7 +175,7 @@ def color_feed():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', threaded=True)
+    app.run(host='0.0.0.0', port=stream_port, threaded=True)
 
 context.keep_running = False
 

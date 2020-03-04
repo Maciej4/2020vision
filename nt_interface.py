@@ -41,3 +41,7 @@ class NTInterface:
     def put_num(self, key, value):
         global table
         table.putNumber(key, value)
+
+    def put_str(self, key, string):
+        global table
+        table.putString(key, string)
